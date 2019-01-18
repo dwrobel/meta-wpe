@@ -5,7 +5,6 @@ SECTION = "wpe"
 PV = "3.0+git${SRCPV}"
 
 PACKAGECONFIG ??= ""
-PACKAGECONFIG[debug]            = "-DCMAKE_BUILD_TYPE=Debug,-DCMAKE_BUILD_TYPE=Release,"
 
 S = "${WORKDIR}/git"
 
@@ -13,4 +12,5 @@ inherit cmake pkgconfig
 
 TOOLCHAIN = "gcc"
 
+EXTRA_OECMAKE += "-DCMAKE_BUILD_TYPE=Debug"
 EXTRA_OECMAKE += "-DCMAKE_SYSROOT=${STAGING_DIR_HOST}"
