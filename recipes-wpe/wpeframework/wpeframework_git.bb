@@ -17,7 +17,7 @@ SRC_URI = "git://github.com/WebPlatformForEmbedded/WPEFramework.git \
            file://wpeframework.service.in \
            file://0001-Thread.cpp-Include-limits.h-for-PTHREAD_STACK_MIN-de.patch \
 "
-SRCREV = "6a91c8e99d7fe16ef95255b5fb4e8aeff1654690"
+SRCREV = "314a682bae47dd1e59fc122ed4c4976cacfda1f0"
 
 inherit cmake pkgconfig systemd update-rc.d
 
@@ -26,16 +26,28 @@ WPEFRAMEWORK_PERSISTENT_PATH = "/home/root"
 WPEFRAMEWORK_SYSTEM_PREFIX = "OE"
 
 PACKAGECONFIG ?= " \
+    release \
     ${@bb.utils.contains('DISTRO_FEATURES', 'opencdm', 'opencdm', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'playready_nexus_svp', 'opencdmi_prnx_svp', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'bluetooth', 'bluetooth', '', d)} \
     virtualinput websource webkitbrowser \
     "
+
+# FIXME
+# Buildtype
+# Maybe we need to couple this to a Yocto feature
+PACKAGECONFIG[debug]          = "-DBUILD_TYPE=Debug,,"
+PACKAGECONFIG[debugoptimized] = "-DBUILD_TYPE=DebugOptimized,,"
+PACKAGECONFIG[releasesymbols] = "-DBUILD_TYPE=ReleaseSymbols,,"
+PACKAGECONFIG[release]        = "-DBUILD_TYPE=Release,,"
+PACKAGECONFIG[production]     = "-DBUILD_TYPE=Production,,"
 
 PACKAGECONFIG[cyclicinspector]  = "-DWPEFRAMEWORK_TEST_CYCLICINSPECTOR=ON,-DWPEFRAMEWORK_TEST_CYCLICINSPECTOR=OFF,"
 PACKAGECONFIG[opencdm]          = "-DWPEFRAMEWORK_CDMI=ON,-DWPEFRAMEWORK_CDMI=OFF,"
 PACKAGECONFIG[provisionproxy]   = "-DWPEFRAMEWORK_PROVISIONPROXY=ON,-DWPEFRAMEWORK_PROVISIONPROXY=OFF,libprovision"
 PACKAGECONFIG[testloader]       = "-DWPEFRAMEWORK_TEST_LOADER=ON,-DWPEFRAMEWORK_TEST_LOADER=OFF,"
 PACKAGECONFIG[virtualinput]     = "-DWPEFRAMEWORK_VIRTUALINPUT=ON,-DWPEFRAMEWORK_VIRTUALINPUT=OFF,"
+PACKAGECONFIG[bluetooth]        = "-DBLUETOOTH_SUPPORT=ON,-DBLUETOOTH_SUPPORT=OFF,"
 
 # BRCM specific OCDM flag (required for ocdm.pc generation)
 PACKAGECONFIG[opencdmi_prnx_svp]  = "-DWPEFRAMEWORK_CDMI_BCM_NEXUS_SVP=ON,,"
@@ -43,7 +55,7 @@ PACKAGECONFIG[opencdmi_prnx_svp]  = "-DWPEFRAMEWORK_CDMI_BCM_NEXUS_SVP=ON,,"
 # FIXME
 # The WPEFramework also needs limited Plugin info in order to determine what to put in the "resumes" configuration
 # it feels a bit the other way around but lets set at least webserver and webkit
-PACKAGECONFIG[websource]       = "-DWPEFRAMEWORK_PLUGIN_WEBSERVER=ON=ON,,"
+PACKAGECONFIG[websource]       = "-DWPEFRAMEWORK_PLUGIN_WEBSERVER=ON,,"
 PACKAGECONFIG[webkitbrowser]   = "-DWPEFRAMEWORK_PLUGIN_WEBKITBROWSER=ON,,"
 
 # FIXME, determine this a little smarter
@@ -74,7 +86,7 @@ EXTRA_OECMAKE += " \
     -DBUILD_REFERENCE=${SRCREV} \
     -DTREE_REFERENCE=${SRCREV} \
     -DWPEFRAMEWORK_PERSISTENT_PATH=${WPEFRAMEWORK_PERSISTENT_PATH} \
-    -DWPEFRAMEWORK_SYSTEM_PREFIX=${WPEFRAMEWORK_SYSTEM_PREFIX} \
+    -DSYSTEM_PREFIX=${WPEFRAMEWORK_SYSTEM_PREFIX} \
 "
 
 do_install_append() {
